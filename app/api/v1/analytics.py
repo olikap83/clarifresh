@@ -79,7 +79,7 @@ async def sentiment_overview(
     if from_date is None:
         from_date = datetime.now(timezone.utc) - timedelta(days=14)
 
-    post_q = select(SocialPost.id).where(SocialPost.ingested_at >= from_date)
+    post_q = select(SocialPost.id, SocialPost.competitor_id).where(SocialPost.ingested_at >= from_date)
     if to_date:
         post_q = post_q.where(SocialPost.ingested_at <= to_date)
     if competitor_id:
@@ -87,7 +87,9 @@ async def sentiment_overview(
     if platform:
         post_q = post_q.where(SocialPost.platform == platform)
 
-    post_ids = (await db.execute(post_q)).scalars().all()
+    post_rows = (await db.execute(post_q)).all()
+    post_ids = [r[0] for r in post_rows]
+    post_competitor_map: dict[uuid.UUID, uuid.UUID] = {r[0]: r[1] for r in post_rows}
     total_posts = len(post_ids)
 
     if not post_ids:
@@ -127,12 +129,17 @@ async def sentiment_overview(
 
     by_competitor = []
     for comp in competitors:
-        comp_sentiments = [s for s in unique_sentiments if True]
+        comp_post_ids = {pid for pid, cid in post_competitor_map.items() if cid == comp.id}
+        comp_sentiments = [s for s in unique_sentiments if s.social_post_id in comp_post_ids]
+        comp_dist: dict[str, int] = {}
+        for s in comp_sentiments:
+            comp_dist[s.overall_sentiment] = comp_dist.get(s.overall_sentiment, 0) + 1
+        top_sentiment = max(comp_dist, key=lambda k: comp_dist[k]) if comp_dist else "neutral"
         by_competitor.append({
             "competitor_id": str(comp.id),
             "competitor_name": comp.name,
-            "overall_sentiment": max(dist, key=lambda k: dist.get(k, 0)) if dist else "neutral",
-            "post_count": sum(1 for pid in post_ids if True),
+            "overall_sentiment": top_sentiment,
+            "post_count": len(comp_post_ids),
         })
 
     return {

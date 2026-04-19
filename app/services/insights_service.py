@@ -62,6 +62,7 @@ async def generate_weekly_insights(
     post_summaries = []
     for post, score in scored[:50]:
         sm = latest_sentiment(post)
+        lm = latest_metrics(post)
         post_summaries.append({
             "id": str(post.id),
             "competitor": post.competitor.name if post.competitor else "unknown",
@@ -71,8 +72,8 @@ async def generate_weekly_insights(
             "hashtags": post.hashtags or [],
             "ai_summary": post.ai_summary or "",
             "rank_score": score,
-            "views": int(latest_metrics(post).views_count) if latest_metrics(post) else 0,
-            "likes": int(latest_metrics(post).likes_count) if latest_metrics(post) else 0,
+            "views": int(lm.views_count) if lm else 0,
+            "likes": int(lm.likes_count) if lm else 0,
             "overall_sentiment": sm.overall_sentiment if sm else None,
             "key_themes": sm.key_themes if sm else [],
         })

@@ -4,6 +4,7 @@ import uuid
 from datetime import date, timedelta
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from sqlalchemy import func, select
 
 from app.db.session import AsyncSessionLocal
 from app.models.ingestion_job import IngestionJob
@@ -17,7 +18,6 @@ scheduler = AsyncIOScheduler()
 
 async def _scheduled_ingestion():
     async with AsyncSessionLocal() as db:
-        from sqlalchemy import select, func
         running = (await db.execute(
             select(func.count(IngestionJob.id)).where(IngestionJob.status.in_(["pending", "running"]))
         )).scalar_one()

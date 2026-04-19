@@ -36,7 +36,7 @@ class ApifyClient:
         actor_id = self._actor_id(platform)
         run_input = self._build_run_input(platform, handles, hashtags, max_posts)
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         run = await loop.run_in_executor(
             None,
             lambda: self._client.actor(actor_id).call(run_input=run_input, wait_secs=0),
@@ -44,12 +44,12 @@ class ApifyClient:
         return run["id"]
 
     async def get_run_status(self, run_id: str) -> str:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         run = await loop.run_in_executor(None, lambda: self._client.run(run_id).get())
         return run.get("status", "UNKNOWN")
 
     async def fetch_items(self, run_id: str) -> list[dict[str, Any]]:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         dataset_id = await loop.run_in_executor(
             None, lambda: self._client.run(run_id).get()["defaultDatasetId"]
         )

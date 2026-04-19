@@ -170,10 +170,8 @@ async def run_ingestion_job(job_id: uuid.UUID, competitor_id: uuid.UUID | None, 
                 hashtags = list({h for c in plat_competitors for h in (c.hashtags or [])})
 
                 apify_run_id = await apify.trigger_run(plat, handles, hashtags, max_posts)
-
-                if platform:
-                    job.apify_run_id = apify_run_id
-                    await db.commit()
+                job.apify_run_id = apify_run_id
+                await db.commit()
 
                 success = await apify.poll_until_done(apify_run_id)
                 if not success:

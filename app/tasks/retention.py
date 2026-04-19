@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import delete, text
+from sqlalchemy import delete
 
 from app.config import settings
 from app.db.session import AsyncSessionLocal
