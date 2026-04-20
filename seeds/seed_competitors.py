@@ -93,18 +93,6 @@ COMPETITORS = [
     },
     # ── Recommended additions ───────────────────────────────────────────────
     {
-        "name": "Clarifruit",
-        "platform": "instagram",
-        "handle": "clarifruit",
-        "hashtags": ["#clarifruit", "#producequality", "#agtech"],
-    },
-    {
-        "name": "Clarifruit",
-        "platform": "tiktok",
-        "handle": "clarifruit",
-        "hashtags": ["#clarifruit", "#agtech"],
-    },
-    {
         "name": "Apeel Sciences",
         "platform": "instagram",
         "handle": "apeelsciences",
